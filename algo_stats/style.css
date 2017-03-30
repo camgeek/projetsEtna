@@ -1,0 +1,42 @@
+#body_algo
+{
+	background-color: #f4f3ee;
+	width: 90%;
+	height: auto;
+	margin: auto;
+	text-align: center;
+	box-shadow: 3px 3px 3px lightgrey;
+	border-radius: 5px;
+}
+
+h1
+{
+	padding-top: 15px;
+	color: #df9496;
+	font-family: 'Open Sans Condensed';
+	text-transform: uppercase;
+	letter-spacing: 2px;
+}
+
+h2
+{
+	color: #727b84;
+	font-family: 'Open Sans Condensed';
+	text-transform: uppercase;
+	letter-spacing: 2px;
+}
+
+select
+{
+	width: 150px;
+	height: 30px;
+	margin-bottom: 10px;
+}
+
+input
+{
+	width: 250px;
+	height: 35px;
+	background-color: #d9e2e1;
+	border-radius: 5px;
+}
