@@ -1,0 +1,105 @@
+lab = {
+:web1 => {
+:app_vm_name => "web1",
+:app_name => "web1",
+:app_ip => "192.168.10.2",
+:app_netmask => "255.255.255.0",
+:app_ip_gateway => "192.168.10.1"
+},
+:web2 => {
+:app_vm_name => "web2",
+:app_name => "web2",
+:app_ip => "192.168.10.3",
+:app_netmask => "255.255.255.0",
+:app_ip_gateway => "192.168.10.1"
+},
+:proxy => {
+:app_vm_name => "proxy",
+:app_name => "proxy",
+:app_ip => "192.168.10.4",
+:app_netmask => "255.255.255.0",
+:app_ip_gateway => "192.168.10.1"
+},
+:gateway => {
+:app_vm_name => "gateway",
+:app_name => "gateway",
+:app_ip => "192.168.10.1",
+:app_netmask => "255.255.255.0",
+:app_ip_gateway => "192.168.10.1"
+}
+}
+
+Vagrant.configure("2") do |config|
+
+#WEB 1 
+
+config.vm.define lab[:web1][:app_name] do |web1|
+ web1.vm.box = "debian/jessie64"
+	
+	 web1.vm.network "private_network", ip: lab[:web1][:app_ip], netmask: lab[:web1][:app_netmask], virtualbox__intnet: "network1"
+	 web1.vm.provision :chef_solo do |chef|
+	 chef.cookbooks_path = "../chef-repo/cookbooks"
+	 chef.roles_path = "../chef-repo/roles"
+        chef.add_role("web-server")
+        chef.json = { 
+		:apache => { :default_site_enabled => true,
+					 "docroot_dir" => '/vagrant/web1_docroot'
+					} 
+		}
+		
+    end
+end
+
+#WEB 2 
+
+config.vm.define lab[:web2][:app_name] do |web2|
+ web2.vm.box = "debian/jessie64"
+	
+	 web2.vm.network "private_network", ip: lab[:web2][:app_ip], netmask: lab[:web2][:app_netmask], virtualbox__intnet: "network1"
+	 web2.vm.provision :chef_solo do |chef|
+	 chef.cookbooks_path = "../chef-repo/cookbooks"
+	 chef.roles_path = "../chef-repo/roles"
+        chef.add_role("web-server")
+        chef.json = { 
+		:apache => { :default_site_enabled => true,
+					 "docroot_dir" => '/vagrant/web2_docroot'
+					} 
+		}
+		
+    end
+end
+
+#Proxy
+
+config.vm.define lab[:proxy][:app_name] do |proxy|
+  proxy.vm.box = "debian/jessie64"
+	
+	 proxy.vm.network "private_network", ip: lab[:proxy][:app_ip], netmask: lab[:proxy][:app_netmask], virtualbox__intnet: "network1"
+	 proxy.vm.provision :chef_solo do |chef|
+	 chef.cookbooks_path = "../chef-repo/cookbooks"
+	 chef.roles_path = "../chef-repo/roles"
+        
+		chef.add_recipe "chef_nginx"
+		chef.add_role("nginx-roles")
+		chef.add_recipe "default-route"
+		
+    end
+end
+
+#Gateway
+
+config.vm.define lab[:gateway][:app_name] do |gateway|
+  gateway.vm.box = "debian/jessie64"
+	
+	 gateway.vm.network "private_network", ip: lab[:gateway][:app_ip], netmask: lab[:gateway][:app_netmask], virtualbox__intnet: "network1"
+	 gateway.vm.network "public_network"
+	 gateway.vm.provision :chef_solo do |chef|
+	 chef.cookbooks_path = "../chef-repo/cookbooks"
+	 chef.roles_path = "../chef-repo/roles"
+       
+		 chef.add_recipe "default-route"
+		 chef.add_role("gateway")
+		
+    end
+end
+end
